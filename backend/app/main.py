@@ -15,7 +15,13 @@ from .schemas import DashboardResponse, EventResponse, EvidenceResponse, ProofRe
 from .services import analyze_evidence, sha256_bytes, store_evidence, validate_upload
 
 app = FastAPI(title="SecureProof API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allow_methods=["GET", "POST"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origin_list,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):517[3-9]$",
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 
 def event(db: Session, evidence_id: str, event_type: str, description: str, transaction_reference: str | None = None) -> None:

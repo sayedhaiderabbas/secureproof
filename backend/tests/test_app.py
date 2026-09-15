@@ -31,6 +31,17 @@ def setup_function():
 
 def test_health():
     assert client.get("/api/health").json() == {"status": "ok", "service": "secureproof"}
+    response = client.get("/api/health", headers={"Origin": "http://localhost:5175"})
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5175"
+
+
+def test_dashboard_serializes_analysis():
+    content = b"FAILED LOGIN\nFAILED LOGIN\n"
+    response = client.post("/api/evidence/upload", files={"file": ("dashboard.log", content, "text/plain")})
+    assert response.status_code == 201
+    dashboard = client.get("/api/dashboard")
+    assert dashboard.status_code == 200
+    assert dashboard.json()["recent_evidence"][0]["analysis"]["indicators"] == ["Repeated failed login attempts"]
 
 
 def test_upload_hash_analysis_and_duplicate():

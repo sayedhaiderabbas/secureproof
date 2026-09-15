@@ -8,7 +8,8 @@ type Verification = { result: string; message: string; original_hash: string; cu
 type Proof = { transaction_hash: string; network: string; contract_address: string; block_number: number; evidence_hash: string };
 type Event = { event_type: string; description: string; timestamp: string; transaction_reference?: string };
 type View = "Dashboard" | "Evidence" | "AI Analysis" | "Blockchain Proofs" | "Verification" | "Audit Timeline";
-const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+const API = `${API_BASE_URL}/api`;
 
 export function App() {
   const [view, setView] = useState<View>("Dashboard");
@@ -21,8 +22,13 @@ export function App() {
   const [timeline, setTimeline] = useState<Event[]>([]);
 
   async function refresh() {
+    const health = await fetch(`${API}/health`);
+    if (!health.ok) throw new Error(`API health check failed (${health.status})`);
+    const healthData = await health.json();
+    if (healthData.status !== "ok" || healthData.service !== "secureproof") throw new Error("Unexpected API health response");
     const [dash, list] = await Promise.all([fetch(`${API}/dashboard`), fetch(`${API}/evidence`)]);
-    if (!dash.ok || !list.ok) throw new Error("API request failed");
+    if (!dash.ok) throw new Error(`Dashboard request failed (${dash.status})`);
+    if (!list.ok) throw new Error(`Evidence request failed (${list.status})`);
     setDashboard(await dash.json()); setEvidence(await list.json());
   }
   async function loadEvidenceState(id: string) {
