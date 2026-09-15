@@ -1,4 +1,5 @@
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
@@ -14,7 +15,15 @@ from .models import Analysis, BlockchainProof, Evidence, IncidentEvent, Verifica
 from .schemas import DashboardResponse, EventResponse, EvidenceResponse, ProofResponse, VerificationResponse
 from .services import analyze_evidence, sha256_bytes, store_evidence, validate_upload
 
-app = FastAPI(title="SecureProof API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    Path("./data").mkdir(parents=True, exist_ok=True)
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(title="SecureProof API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
@@ -26,13 +35,6 @@ app.add_middleware(
 
 def event(db: Session, evidence_id: str, event_type: str, description: str, transaction_reference: str | None = None) -> None:
     db.add(IncidentEvent(evidence_id=evidence_id, event_type=event_type, description=description, transaction_reference=transaction_reference))
-
-
-@app.on_event("startup")
-def startup() -> None:
-    settings.upload_dir.mkdir(parents=True, exist_ok=True)
-    Path("./data").mkdir(parents=True, exist_ok=True)
-    Base.metadata.create_all(bind=engine)
 
 
 @app.get("/api/health")
