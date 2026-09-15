@@ -1,0 +1,6 @@
+{
+  "name": "secureproof-blockchain",
+  "private": true,
+  "scripts": {"test": "hardhat test", "compile": "hardhat compile", "node": "hardhat node", "deploy:local": "hardhat run scripts/deploy.js"},
+  "devDependencies": {"@nomicfoundation/hardhat-toolbox": "^5.0.0", "hardhat": "^2.22.18"}
+}

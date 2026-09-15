@@ -1,0 +1,5 @@
+2026-09-15T10:00:00Z user=fictional-analyst event=FAILED LOGIN source=203.0.113.42
+2026-09-15T10:01:00Z user=fictional-analyst event=FAILED LOGIN source=203.0.113.42
+2026-09-15T10:02:00Z user=fictional-analyst event=FAILED LOGIN source=203.0.113.42
+2026-09-15T10:08:00Z user=fictional-analyst event=SUSPICIOUS LOGIN source=203.0.113.42
+2026-09-15T10:12:00Z user=fictional-analyst event=PRIVILEGE ESCALATION INDICATOR host=demo-workstation
